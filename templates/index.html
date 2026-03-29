@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale.ai | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            background-color: #000000 !important;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Transition */
+        #sidebar {
+            transition: width 0.3s ease;
+            width: 80px; /* Collapsed width */
+        }
+        #sidebar.expanded {
+            width: 260px; /* Expanded width */
+        }
+
+        .astronaut {
+            font-size: 70px;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.4));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        #resultArea {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #0a0a0a;
+            border: 1px solid #1f1f1f;
+        }
+
+        #resultArea::-webkit-scrollbar { width: 4px; }
+        #resultArea::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex">
+
+    <aside id="sidebar" class="h-screen bg-[#0a0a0a] border-r border-white/5 flex flex-col items-center py-6 overflow-hidden">
+        <button onclick="toggleSidebar()" class="p-3 hover:bg-white/5 rounded-xl mb-8 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
+        <button onclick="newChat()" class="flex items-center justify-center p-3 bg-white/5 hover:bg-indigo-600/20 border border-white/10 rounded-2xl transition w-12 h-12 overflow-hidden group" id="newChatBtn">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="ml-3 font-bold text-sm hidden" id="newChatText">New Chat</span>
+        </button>
+    </aside>
+
+    <div class="flex-1 flex flex-col relative">
+        <nav class="p-8 flex justify-between items-center w-full">
+            <div class="text-2xl font-bold tracking-tighter">Scale<span class="text-indigo-500">.ai</span></div>
+            <div class="text-xs text-gray-500">Founder: <span class="text-indigo-400">Fazil</span></div>
+        </nav>
+
+        <main class="flex-1 flex flex-col items-center justify-center px-6 -mt-10">
+            <div id="resultArea" class="w-full max-w-2xl mt-4 p-8 rounded-[2rem] hidden shadow-2xl mb-6">
+                <div id="aiResponse" class="text-gray-200 text-base leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+
+            <div id="heroSection" class="text-center transition-opacity duration-500">
+                <div class="astronaut mb-4">🧑‍🚀</div>
+                <h1 class="text-5xl font-extrabold mb-10">Scale your <span class="text-indigo-500">Dreams.</span></h1>
+            </div>
+
+            <div class="w-full max-w-2xl bg-[#111] p-2 rounded-2xl flex border border-white/10 shadow-2xl focus-within:border-indigo-500/50">
+                <input id="projectInput" type="text" placeholder="What's your project idea, Fazil?..."
+                       class="flex-1 bg-transparent outline-none px-5 py-3 text-white">
+                <button onclick="generateProject()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition">
+                    Generate
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // SIDEBAR LOGIC
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const newChatBtn = document.getElementById('newChatBtn');
+            const newChatText = document.getElementById('newChatText');
+
+            sidebar.classList.toggle('expanded');
+
+            if(sidebar.classList.contains('expanded')) {
+                newChatBtn.style.width = "220px";
+                newChatBtn.style.justifyContent = "start";
+                newChatText.classList.remove('hidden');
+            } else {
+                newChatBtn.style.width = "48px";
+                newChatBtn.style.justifyContent = "center";
+                newChatText.classList.add('hidden');
+            }
+        }
+
+        // NEW CHAT LOGIC (Clears everything)
+        function newChat() {
+            document.getElementById('projectInput').value = "";
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('heroSection').style.opacity = "1";
+        }
+
+        // AI GENERATION LOGIC
+        async function generateProject() {
+            const input = document.getElementById('projectInput').value;
+            const resultArea = document.getElementById('resultArea');
+            const responseDiv = document.getElementById('aiResponse');
+            const hero = document.getElementById('heroSection');
+
+            if(!input) return;
+
+            resultArea.classList.remove('hidden');
+            hero.style.opacity = "0.1";
+            responseDiv.innerHTML = "<span class='text-indigo-400 animate-pulse'>Thinking...</span>";
+
+            try {
+                const response = await fetch('/ask_ai', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ prompt: input })
+                });
+                const data = await response.json();
+                responseDiv.innerText = data.answer;
+            } catch (error) {
+                responseDiv.innerText = "Error: Check connection.";
+            }
+        }
+    </script>
+</body>
+</html>
