@@ -11,9 +11,13 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///scale.db'
+if os.environ.get('VERCEL'):
+    else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/scale.db'
 
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
