@@ -16,10 +16,10 @@
         <h2 class="text-2xl font-semibold text-white mb-2">Create Account</h2>
         <p class="text-gray-400 mb-8 text-sm">Join the Scale.ai student community.</p>
 
-        <<form action="{{ url_for('signup') }}" method="POST">
+        <form action="{{ url_for('signup') }}" method="POST" class="space-y-6">
             <div>
                 <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Choose Username</label>
-                <input type="text" name="username" required class="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 transition-all" placeholder="fazil_dev">
+                <input type="text" name="username" required class="w-full bg-[#121212] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 transition-all" placeholder="username">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Password</label>
@@ -29,8 +29,9 @@
                 Sign Up
             </button>
         </form>
+
         <p class="mt-8 text-center text-gray-500 text-sm">
-           <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+           Already have an account? <a href="{{ url_for('index_route') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold">Log In</a>
         </p>
     </div>
 </body>
